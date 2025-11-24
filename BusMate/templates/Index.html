@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BusMate - Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='Index.css') }}" />
+</head>
+<body>
+    <div class="page">
+        <!-- Top header bar -->
+        <header class="top-bar">
+            <div class="top-inner">
+                <div class="brand">
+                    <div class="id-info">
+                        <div>ID NUMBER: <strong>BD-1004</strong></div>
+                        <div>PERSONNEL: <strong>Carl Michael Alano</strong></div>
+                    </div>
+                </div>
+
+                <button class="lap-badge" type="button" aria-label="LAP">LAP</button>
+
+                <div class="route-info">
+                    <div><strong>BUS NUMBER: LQ 3760</strong></div>
+                    <div>CARMEN - DAGUPAN via URDANETA (Vice versa)</div>
+                    <div>SCHEDULED TIME: 13:30</div>
+                    <div>TRAVEL DISTANCE: 40km</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main content -->
+        <main class="main-content">
+            <section class="dashboard-wrap">
+                <h1 class="page-title">Reports</h1>
+
+                <div class="cards-grid">
+                    <div class="stat-card">
+                        <div class="label">Number of Passengers<br/>(Current Lap)</div>
+                        <div class="value">24</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="label">Number of Passengers</div>
+                        <div class="value">87</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="label">Total Fare Collected<br/>(Current Lap)</div>
+                        <div class="value">342</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="label">Total Fare Collected</div>
+                        <div class="value">1,418</div>
+                    </div>
+
+                    <div class="stat-card large">
+                        <div class="label">Next Stop</div>
+                        <div class="value large-text">PSU Urdaneta</div>
+                    </div>
+
+                    <div class="stat-card large">
+                        <div class="label">Report Date</div>
+                        <div class="value large-text">10/29/2025</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom action bar -->
+        <nav class="bottom-nav">
+            <div class="nav-inner">
+                <div class="buttons">
+                    <button class="btn primary">Start Transactions</button>
+                    <button class="btn secondary">Receipts</button>
+                </div>
+
+                <div class="nav-right">
+                    <button class="btn lap-like settings" aria-label="settings">Settings</button>
+                </div>
+            </div>
+        </nav>
+    </div>
+</body>
+</html>
