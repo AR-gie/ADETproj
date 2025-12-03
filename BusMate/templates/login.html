@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BusMate - Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='Index.css') }}" />
+
+    <style>
+        body {
+            margin: 0;
+            font-family: "Inter", sans-serif;
+            background: linear-gradient(135deg, #0b4b9b, #174a8b);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-card {
+            width: 380px;
+            background: #ffffff;
+            padding: 32px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-card h1 {
+            margin: 0 0 20px 0;
+            font-size: 26px;
+            font-weight: 700;
+            text-align: center;
+            color: #0b4b9b;
+        }
+
+        .form-row {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+        }
+
+        input[type=text], input[type=password] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #d0d0d0;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        input[type=text]:focus, input[type=password]:focus {
+            border-color: #0b4b9b;
+            box-shadow: 0 0 0 3px rgba(11, 75, 155, 0.15);
+            outline: none;
+        }
+
+        button {
+            background: #0b4b9b;
+            color: #fff;
+            padding: 12px 14px;
+            width: 100%;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: background 0.25s ease;
+        }
+
+        button:hover {
+            background: #083b7a;
+        }
+
+        .messages {
+            margin: 12px 0;
+            padding: 12px;
+            background: #ffe5e5;
+            color: #a00;
+            border-radius: 8px;
+            font-size: 14px;
+            list-style: none;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h1>Sign in</h1>
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class="messages">
+                {% for msg in messages %}<li>{{ msg }}</li>{% endfor %}
+            </ul>
+        {% endif %}
+        {% endwith %}
+
+        <form method="post" action="{{ url_for('login') }}">
+            <div class="form-row">
+                <label for="userID">User ID</label>
+                <input name="userID" id="userID" type="text" required placeholder="Enter your user ID">
+            </div>
+
+            <div class="form-row">
+                <label for="userPassword">Password</label>
+                <input name="userPassword" id="userPassword" type="password" required placeholder="Enter your password">
+            </div>
+
+            <button type="submit">Sign in</button>
+        </form>
+    </div>
+</body>
+</html>
