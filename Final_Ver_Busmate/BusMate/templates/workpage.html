@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BusMate - Workpage</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='Index.css') }}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+</head>
+<body>
+    <div class="page">
+        <!-- Top header bar -->
+        <header class="top-bar">
+            <div class="top-inner">
+                <div class="brand">
+                    <div class="id-info">
+                        <div>ID NUMBER: <strong>{{ user_id }}</strong></div>
+                        <div>PERSONNEL: <strong>{{ personnel }}</strong></div>
+                    </div>
+                </div>
+
+                <button id="lapButton" class="lap-badge" type="button" aria-label="LAP">LAP</button>
+
+                <div class="route-info">
+                    <div><strong>BUS NUMBER: {{ bus_number }}</strong></div>
+                    <div>{{ location_from }} - {{ location_to }}</div>
+                    <div>SCHEDULED TIME: {{ scheduled_time }}</div>
+                    <div>TRAVEL DISTANCE: {{ distance }}</div>
+                </div>
+
+                <div class="header-controls">
+                    <button class="fullscreen-btn" id="pageFullscreenBtn" onclick="togglePageFullscreen()" title="Toggle Fullscreen">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main content -->
+        <main class="main-content">
+            <section class="dashboard-wrap">
+                <h1 class="page-title">Reports</h1>
+
+                <div class="cards-grid">
+                        <div class="stat-card">
+                            <div class="label">Number of Passengers<br/>(Current Lap)</div>
+                            <div class="value" id="currentPassengers">0</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="label">Number of Passengers<br/>(All)</div>
+                            <div class="value" id="totalPassengers">0</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="label">Total Fare Collected<br/>(Current Lap)</div>
+                            <div class="value" id="currentFare">0</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="label">Total Fare Collected<br/>(All)</div>
+                            <div class="value" id="totalFare">0</div>
+                        </div>
+
+                        <div class="stat-card large">
+                            <div class="label">Next Stop</div>
+                            <div class="value large-text" id="nextStop">{{ location_to }}</div>
+                        </div>
+
+                    <div class="stat-card large">
+                        <div class="label">Report Date</div>
+                        <div class="value large-text">
+                            <input id="reportDate" type="date" value="{{ report_date }}" style="border:none;background:transparent;font-size:18px;font-weight:600;" />
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom action bar -->
+        <nav class="bottom-nav">
+            <div class="nav-inner">
+                <div class="nav-left">
+                    <button class="btn primary" onclick="window.location.href='/logout'">Log-out</button>
+                </div>
+                <div class="nav-right">
+                    <button class="btn primary" onclick="openTransactionModal()">Start Transaction</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Bottom bar for fullscreen mode -->
+        <footer class="bottom-bar">
+            <button class="exit-fullscreen-btn" onclick="togglePageFullscreen()" title="Exit Fullscreen">
+                <i class="fas fa-compress"></i>
+                Exit Fullscreen
+            </button>
+        </footer>
+
+        <!-- Transaction Modal -->
+        <div id="transactionModal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>New Transaction</h2>
+                    <button class="modal-close" onclick="closeTransactionModal()">&times;</button>
+                </div>
+                <form id="transactionForm" class="transaction-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="locationFrom">From Location:</label>
+                                <select id="locationFrom" name="locationFrom" required>
+                                    <option value="">Select from</option>
+                                    {% for loc in locs %}
+                                    <option value="{{ loc[0] }}" data-distance="{{ loc[2] }}">{{ loc[1] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="locationTo">To Location:</label>
+                                <select id="locationTo" name="locationTo" required>
+                                    <option value="">Select to</option>
+                                    {% for loc in locs %}
+                                    <option value="{{ loc[0] }}" data-distance="{{ loc[2] }}">{{ loc[1] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="custSID">Customer Type:</label>
+                                <select id="custSID" name="custSID" required>
+                                    <option value="">Select customer</option>
+                                    {% for cust in customers %}
+                                    <option value="{{ cust[0] }}">{{ cust[1] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="qty">Quantity:</label>
+                                <select id="qty" name="qty" required>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                </select>
+                            </div>
+                        </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="distance">Distance (km):</label>
+                            <input type="number" id="distance" name="distance" step="0.1" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label for="price">Price (per pax):</label>
+                            <input type="number" id="price" name="price" step="0.01" readonly />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="discount">Discount:</label>
+                            <input type="number" id="discount" name="discount" step="0.01" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label for="totalSum">Total Sum:</label>
+                            <input type="number" id="totalSum" name="totalSum" step="0.01" readonly />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="dateField">Date (for testing):</label>
+                            <input type="date" id="dateField" name="dateField" />
+                        </div>
+                        <div class="form-group">
+                            <label for="time">Time:</label>
+                            <input type="time" id="time" name="time" readonly />
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn secondary" onclick="closeTransactionModal()">Cancel</button>
+                        <button type="submit" class="btn primary">Confirm</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Confirmation Modal (overhauled) -->
+        <div id="confirmModal" class="modal-overlay" style="display:none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Confirm Transaction</h2>
+                    <button class="modal-close" onclick="closeConfirmModal()">&times;</button>
+                </div>
+                <div class="transaction-review" style="padding:20px;">
+                    <div style="font-weight:700; margin-bottom:10px;">User: <span id="confirmUser">{{ user_id }}</span></div>
+                    <div style="margin-bottom:8px;">Reference No: <strong id="confirmRef">-</strong></div>
+                    <div style="display:flex;gap:6px;margin-top:8px;">From: <strong id="confirmFrom">-</strong> &mdash; To: <strong id="confirmTo">-</strong></div>
+                    <div style="margin-top:8px;">Date: <span id="confirmDate">-</span> &nbsp; Time: <span id="confirmTime">-</span></div>
+                    <div style="margin-top:8px;">Distance (km): <span id="confirmDistance">-</span></div>
+                    <div>Price (per pax): <span id="confirmPrice">-</span></div>
+                    <div>Quantity: <span id="confirmQty">-</span></div>
+                    <div>Discount: <span id="confirmDiscount">-</span></div>
+                    <div style="font-weight:700; margin-top:10px; font-size:18px;">Total: <span id="confirmTotal">-</span></div>
+
+                    <div class="modal-actions" style="margin-top:18px;">
+                        <button id="confirmEdit" class="btn secondary">Edit</button>
+                        <button id="confirmCommit" class="btn primary">Confirm & Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Modal -->
+        <div id="successModal" class="modal-overlay" style="display:none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Transaction Saved</h2>
+                    <button class="modal-close" onclick="closeSuccessModal()">&times;</button>
+                </div>
+                <div style="padding:20px;">
+                    <div style="font-weight:700; margin-bottom:8px;">Saved successfully</div>
+                    <div>Reference: <strong id="successRef">-</strong></div>
+                    <div>Transaction ID: <strong id="successTransID">-</strong></div>
+                    <div>Total: <strong id="successTotal">-</strong></div>
+                    <div style="margin-top:14px;" class="modal-actions">
+                        <button class="btn primary" onclick="closeSuccessModal()">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Lap Confirmation Mini Popup -->
+        <div id="lapConfirmModal" class="modal-overlay" style="display:none;">
+            <div class="modal-content" style="width:320px; max-width:90%;">
+                <div class="modal-header">
+                    <h3 style="margin:0;">Start New Lap?</h3>
+                    <button class="modal-close" onclick="document.getElementById('lapConfirmModal').style.display='none'">&times;</button>
+                </div>
+                <div style="padding:14px; text-align:center;">
+                    <p style="margin:8px 0 12px 0;">This will reset current lap counters (passengers and fare).</p>
+                    <div style="display:flex; gap:10px; justify-content:center;">
+                        <button id="lapConfirmCancel" class="btn secondary">Cancel</button>
+                        <button id="lapConfirmCommit" class="btn primary">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Toast (small non-blocking notification) -->
+        <div id="toast" class="toast toast-info"></div>
+    </div>
+
+    <script>
+        function openTransactionModal() {
+            document.getElementById('transactionModal').style.display = 'flex';
+            // Pre-fill selects with current route info by matching option text
+            const fromText = `{{ location_from }}`.trim();
+            const toText = `{{ location_to }}`.trim();
+            const fromSelect = document.getElementById('locationFrom');
+            const toSelect = document.getElementById('locationTo');
+            for (const opt of fromSelect.options) {
+                if (opt.text.trim() === fromText) { opt.selected = true; break; }
+            }
+            for (const opt of toSelect.options) {
+                if (opt.text.trim() === toText) { opt.selected = true; break; }
+            }
+
+            // set current date/time
+            const now = new Date();
+            document.getElementById('dateField').value = now.toISOString().split('T')[0];
+            document.getElementById('time').value = now.toTimeString().split(' ')[0].slice(0,5);
+
+            computeValues();
+        }
+
+        function closeTransactionModal() {
+            document.getElementById('transactionModal').style.display = 'none';
+        }
+
+        
+
+        // Close modal when clicking outside of it
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('transactionModal');
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeTransactionModal();
+                }
+            });
+            // compute values when inputs change
+            ['locationFrom','locationTo','qty','custSID'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('change', computeValues);
+            });
+
+            // Handle form submission: call preview first, show review modal
+            document.getElementById('transactionForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const form = this;
+                const formData = new FormData(form);
+
+                fetch('/transaction/preview', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // populate confirmation modal (new flow)
+                        document.getElementById('confirmRef').innerText = data.refNo;
+                        document.getElementById('confirmDistance').innerText = data.distance;
+                        document.getElementById('confirmPrice').innerText = data.price;
+                        document.getElementById('confirmQty').innerText = data.qty;
+                        document.getElementById('confirmDiscount').innerText = data.discount;
+                        document.getElementById('confirmTotal').innerText = data.total;
+                        document.getElementById('confirmDate').innerText = data.date;
+                        document.getElementById('confirmTime').innerText = data.time.substring(0,5);
+                        document.getElementById('confirmUser').innerText = data.user_id || '{{ user_id }}';
+
+                        // set from/to labels from selected options
+                        const fromSel = document.getElementById('locationFrom');
+                        const toSel = document.getElementById('locationTo');
+                        document.getElementById('confirmFrom').innerText = fromSel.options[fromSel.selectedIndex].text;
+                        document.getElementById('confirmTo').innerText = toSel.options[toSel.selectedIndex].text;
+
+                        // store preview ref on confirm modal element for later use
+                        document.getElementById('confirmModal').dataset.ref = data.refNo;
+
+                        // show confirm modal and hide transaction modal
+                        document.getElementById('transactionModal').style.display = 'none';
+                        document.getElementById('confirmModal').style.display = 'flex';
+                    } else {
+                        alert('Preview error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Preview error:', error);
+                    alert('Failed to compute preview');
+                });
+            });
+
+            // Fetch and render report data
+            function refreshReports(){
+                const rp = (document.getElementById('reportDate') && document.getElementById('reportDate').value) || '';
+                const url = rp ? ('/api/reports?date=' + encodeURIComponent(rp)) : '/api/reports';
+                fetch(url)
+                .then(r => r.json())
+                .then(data => {
+                    if (data) {
+                        document.getElementById('currentPassengers').innerText = data.current_passengers || 0;
+                        document.getElementById('currentFare').innerText = data.current_total || 0;
+                        // When a report date is selected the totalPassengers/totalFare show totals for that date
+                        document.getElementById('totalPassengers').innerText = data.total_passengers || 0;
+                        document.getElementById('totalFare').innerText = data.total_fare || 0;
+                    }
+                })
+                .catch(err => console.error('Reports fetch error', err));
+            }
+
+            // LAP button: confirm and reset lap via API then refresh reports
+            // LAP button: open small in-app confirmation modal (design-friendly)
+            const lapButton = document.getElementById('lapButton');
+            if (lapButton) {
+                lapButton.addEventListener('click', function(){
+                    const lm = document.getElementById('lapConfirmModal');
+                    if (lm) lm.style.display = 'flex';
+                });
+            }
+
+            // Refresh reports initially and after actions
+            refreshReports();
+
+            // Allow editing the Report Date input and persist selection in session
+            const reportDateEl = document.getElementById('reportDate');
+            if (reportDateEl) {
+                reportDateEl.addEventListener('change', function(){
+                    const v = reportDateEl.value;
+                    // send selected date to server so it persists across refreshes
+                    const fd = new FormData();
+                    fd.append('date', v);
+                    fetch('/api/report-date', { method: 'POST', body: fd })
+                    .then(r => r.json())
+                    .then(resp => {
+                        if (resp && resp.success) {
+                            // refresh reports for the new date
+                            refreshReports();
+                        } else {
+                            console.error('Failed to set report date', resp);
+                        }
+                    })
+                    .catch(err => console.error('Set report date error', err));
+                });
+            }
+
+            // Confirmation modal handlers (new flow)
+            window.closeConfirmModal = function(){
+                const c = document.getElementById('confirmModal');
+                if (c) c.style.display = 'none';
+            }
+
+            document.getElementById('confirmEdit').addEventListener('click', function(){
+                // return to the transaction form for edits
+                window.closeConfirmModal();
+                document.getElementById('transactionModal').style.display = 'flex';
+            });
+
+            document.getElementById('confirmCommit').addEventListener('click', function(){
+                const form = document.getElementById('transactionForm');
+                const fd = new FormData(form);
+                const previewRef = document.getElementById('confirmModal').dataset.ref;
+                if (previewRef) fd.set('refNo', previewRef);
+
+                fetch('/transaction/create', { method: 'POST', body: fd })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success) {
+                        document.getElementById('successRef').innerText = res.refNo || previewRef || '-';
+                        document.getElementById('successTransID').innerText = res.transID || '';
+                        document.getElementById('successTotal').innerText = document.getElementById('confirmTotal').innerText || '';
+
+                        // hide confirm and transaction modals, show success
+                        window.closeConfirmModal();
+                        document.getElementById('transactionModal').style.display = 'none';
+                        document.getElementById('successModal').style.display = 'flex';
+
+                        // reset form for next use and refresh reports
+                        document.getElementById('transactionForm').reset();
+                        refreshReports();
+                    } else {
+                        alert('Error saving transaction: ' + (res.message || 'Unknown'));
+                    }
+                })
+                .catch(err => {
+                    console.error('Create error:', err);
+                    alert('Failed to save transaction');
+                });
+            });
+
+            // Success modal close handler (exposed to global for inline onclick)
+            window.closeSuccessModal = function(){
+                const s = document.getElementById('successModal');
+                if (s) s.style.display = 'none';
+            }
+
+            // Lap confirm modal handlers
+            const lapModal = document.getElementById('lapConfirmModal');
+            if (lapModal) {
+                lapModal.addEventListener('click', function(e){ if (e.target === lapModal) lapModal.style.display = 'none'; });
+                const lapCancel = document.getElementById('lapConfirmCancel');
+                const lapCommit = document.getElementById('lapConfirmCommit');
+                if (lapCancel) lapCancel.addEventListener('click', function(){ lapModal.style.display = 'none'; });
+                if (lapCommit) lapCommit.addEventListener('click', function(){
+                    fetch('/api/lap/reset', { method: 'POST' })
+                    .then(r => r.json())
+                    .then(resp => {
+                        lapModal.style.display = 'none';
+                        if (resp.success) {
+                            alert('New lap started');
+                            refreshReports();
+                        } else {
+                            alert('Failed to start new lap: ' + (resp.message || 'Unknown'));
+                        }
+                    })
+                    .catch(err => { lapModal.style.display = 'none'; console.error('Lap reset error', err); alert('Lap reset failed'); });
+                });
+            }
+
+            // computeValues definition
+            function computeValues(){
+                const fromSelect = document.getElementById('locationFrom');
+                const toSelect = document.getElementById('locationTo');
+                const qty = parseInt(document.getElementById('qty').value) || 1;
+                const cust = parseInt(document.getElementById('custSID').value) || 1;
+
+                const fromOpt = fromSelect.options[fromSelect.selectedIndex];
+                const toOpt = toSelect.options[toSelect.selectedIndex];
+                const distFrom = fromOpt ? parseFloat(fromOpt.dataset.distance || 0) : 0;
+                const distTo = toOpt ? parseFloat(toOpt.dataset.distance || 0) : 0;
+                const distance = Math.abs(distFrom - distTo);
+                document.getElementById('distance').value = distance.toFixed(1);
+
+                const price = Math.max(Math.floor(distance * 20), 10);
+                document.getElementById('price').value = price;
+
+                let discount = 0;
+                if (cust === 1) discount = 0;
+                else if ([2,3,4].includes(cust)) discount = Math.floor((price * qty) * 0.30);
+                else if (cust === 5) discount = Math.floor((price * qty) * 0.20);
+                else discount = 0;
+                document.getElementById('discount').value = discount;
+
+                const total = price * qty - discount;
+                document.getElementById('totalSum').value = total;
+            }
+
+            // Add escape key listener for fullscreen exit
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const pageElement = document.querySelector('.page');
+                    if (pageElement.classList.contains('page-fullscreen')) {
+                        togglePageFullscreen();
+                    }
+                }
+            });
+        });
+
+        function togglePageFullscreen() {
+            const pageElement = document.querySelector('.page');
+            const fullscreenBtn = document.getElementById('pageFullscreenBtn');
+            const icon = fullscreenBtn.querySelector('i');
+
+            if (pageElement.classList.contains('page-fullscreen')) {
+                // Exit fullscreen
+                pageElement.classList.remove('page-fullscreen');
+                icon.className = 'fas fa-expand';
+                fullscreenBtn.title = 'Toggle Fullscreen';
+            } else {
+                // Enter fullscreen
+                pageElement.classList.add('page-fullscreen');
+                icon.className = 'fas fa-compress';
+                fullscreenBtn.title = 'Exit Fullscreen';
+            }
+        }
+    </script>
+</body>
+</html>
