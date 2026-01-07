@@ -75,10 +75,10 @@ body {
 }
 
 .top-inner{
-    /* Use a three-column grid: left (brand), center (lap badge), right (route info).
+    /* Use a four-column grid: left (brand), center (lap badge), right (route info), far-right (controls).
        This prevents flex-driven reflow; the top bar will not flex anymore. */
     display: grid;
-    grid-template-columns: minmax(120px, 1fr) auto minmax(160px, 1fr);
+    grid-template-columns: minmax(120px, 1fr) auto minmax(160px, 1fr) auto;
     align-items: center;
     gap: 12px;
     width: 100%;
@@ -118,6 +118,106 @@ body {
     justify-self: end;
     min-width: 0;
     word-break: break-word;
+}
+
+.header-controls {
+    justify-self: end;
+    display: flex;
+    align-items: center;
+}
+
+.fullscreen-btn {
+    padding: 8px 12px;
+    background: var(--accent-blue);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(23, 74, 139, 0.2);
+}
+
+.fullscreen-btn:hover {
+    background: #1a5a99;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(23, 74, 139, 0.3);
+}
+
+/* Fullscreen mode styles */
+.page-fullscreen .top-bar {
+    display: none;
+}
+
+.page-fullscreen .bottom-nav {
+    display: none;
+}
+
+.page-fullscreen .bottom-bar {
+    display: flex;
+}
+
+.page-fullscreen .main-content {
+    top: 0 !important; /* Touch the top */
+    bottom: 130px !important; /* Leave more space for bottom bar */
+    height: calc(100vh - 130px) !important;
+    width: 100vw !important;
+    max-width: none !important;
+    left: 0 !important;
+    transform: none !important;
+}
+
+.page-fullscreen .dashboard-wrap {
+    height: 100% !important;
+    border-radius: 0 !important;
+}
+
+.page-fullscreen .fullscreen-btn i::before {
+    content: "\f066"; /* fa-compress icon */
+}
+
+/* Bottom bar for fullscreen mode */
+.bottom-bar {
+    position: fixed;
+    bottom: var(--bar-gap);
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - var(--side-offset));
+    max-width: var(--max-width);
+    height: var(--bar-height);
+    background: linear-gradient(180deg, #e4f6ff, var(--header-blue));
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(10,40,80,0.07);
+    padding: 12px 18px;
+    z-index: 1300; /* Higher than bottom-nav */
+    display: none; /* Hidden by default, shown in fullscreen */
+    justify-content: center;
+    align-items: center;
+}
+
+.bottom-bar .exit-fullscreen-btn {
+    padding: 10px 20px;
+    background: var(--accent-blue);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(23, 74, 139, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bottom-bar .exit-fullscreen-btn:hover {
+    background: var(--accent-blue-dark, #1a5a99);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(23, 74, 139, 0.3);
+}
+
+.bottom-bar .exit-fullscreen-btn i {
+    font-size: 16px;
 }
 .lap-badge{
     /* make LAP a simple square centered in the top bar */
@@ -473,4 +573,29 @@ body {
     .transaction-form {
         padding: 18px;
     }
+}
+
+/* Toast notifications */
+.toast {
+    position: fixed;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 14px;
+    border-radius: 6px;
+    display: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    z-index: 2000;
+    max-width: 400px;
+    text-align: center;
+}
+
+.toast-info {
+    background: #222;
+    color: #fff;
+}
+
+.toast-error {
+    background: #dc3545;
+    color: #fff;
 }

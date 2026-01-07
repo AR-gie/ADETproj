@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>BusMate - Workpage</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='Index.css') }}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 </head>
 <body>
     <div class="page">
@@ -25,6 +26,12 @@
                     <div>{{ location_from }} - {{ location_to }}</div>
                     <div>SCHEDULED TIME: {{ scheduled_time }}</div>
                     <div>TRAVEL DISTANCE: {{ distance }}</div>
+                </div>
+
+                <div class="header-controls">
+                    <button class="fullscreen-btn" id="pageFullscreenBtn" onclick="togglePageFullscreen()" title="Toggle Fullscreen">
+                        <i class="fas fa-expand"></i>
+                    </button>
                 </div>
             </div>
         </header>
@@ -74,13 +81,21 @@
         <nav class="bottom-nav">
             <div class="nav-inner">
                 <div class="nav-left">
-                    <button class="btn primary" onclick="window.location.href='/'">Log-out</button>
+                    <button class="btn primary" onclick="window.location.href='/logout'">Log-out</button>
                 </div>
                 <div class="nav-right">
                     <button class="btn primary" onclick="openTransactionModal()">Start Transaction</button>
                 </div>
             </div>
         </nav>
+
+        <!-- Bottom bar for fullscreen mode -->
+        <footer class="bottom-bar">
+            <button class="exit-fullscreen-btn" onclick="togglePageFullscreen()" title="Exit Fullscreen">
+                <i class="fas fa-compress"></i>
+                Exit Fullscreen
+            </button>
+        </footer>
 
         <!-- Transaction Modal -->
         <div id="transactionModal" class="modal-overlay" style="display: none;">
@@ -232,7 +247,7 @@
             </div>
         </div>
         <!-- Toast (small non-blocking notification) -->
-        <div id="toast" style="position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:10px 14px;border-radius:6px;display:none;box-shadow:0 4px 12px rgba(0,0,0,0.25);z-index:2000;"></div>
+        <div id="toast" class="toast toast-info"></div>
     </div>
 
     <script>
@@ -477,7 +492,35 @@
                 const total = price * qty - discount;
                 document.getElementById('totalSum').value = total;
             }
+
+            // Add escape key listener for fullscreen exit
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const pageElement = document.querySelector('.page');
+                    if (pageElement.classList.contains('page-fullscreen')) {
+                        togglePageFullscreen();
+                    }
+                }
+            });
         });
+
+        function togglePageFullscreen() {
+            const pageElement = document.querySelector('.page');
+            const fullscreenBtn = document.getElementById('pageFullscreenBtn');
+            const icon = fullscreenBtn.querySelector('i');
+
+            if (pageElement.classList.contains('page-fullscreen')) {
+                // Exit fullscreen
+                pageElement.classList.remove('page-fullscreen');
+                icon.className = 'fas fa-expand';
+                fullscreenBtn.title = 'Toggle Fullscreen';
+            } else {
+                // Enter fullscreen
+                pageElement.classList.add('page-fullscreen');
+                icon.className = 'fas fa-compress';
+                fullscreenBtn.title = 'Exit Fullscreen';
+            }
+        }
     </script>
 </body>
 </html>
